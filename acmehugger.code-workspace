@@ -1,0 +1,60 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Debug nginx",
+				"type": "go",
+				"request": "launch",
+				"mode": "test",
+				"program": "${workspaceFolder}/nginx"
+			},
+			{
+				"name": "Debug acme",
+				"type": "go",
+				"request": "launch",
+				"mode": "test",
+				"program": "${workspaceFolder}/acme"
+			},
+			{
+				"name": "Remote debug",
+				"type": "go",
+				"request": "attach",
+				"mode": "remote",
+				"port": 40000,
+				"host": "127.0.0.1",
+				"substitutePath": [
+					{
+						"from": "${workspaceFolder}",
+						"to": "/go/src/app"
+					}
+				]
+			},
+			{
+				"name": "Run",
+				"type": "go",
+				"request": "launch",
+				"mode": "auto",
+				"program": "${workspaceFolder}/nginx/cmd/nginxh",
+				"buildFlags": "-ldflags '-X github.com/hgl/acmehugger/meta.StateDir=${workspaceFolder}/build/state -X github.com/hgl/acmehugger/meta.NginxConfDir=${workspaceFolder}/build/conf'",
+				"args": [
+					"nginx",
+					"-p",
+					"${workspaceFolder}/build/conf",
+					"-c",
+					"${workspaceFolder}/nginx.conf",
+					"-e",
+					"${workspaceFolder}/build/conf/error.log",
+					"-g",
+					"daemon off;"
+				]
+			},
+		]
+	}
+}

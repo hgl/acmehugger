@@ -1,0 +1,4 @@
+source-path=SCRIPTDIR
+disable=SC3040
+enable=check-extra-masked-returns,check-unassigned-uppercase
+external-sources=true

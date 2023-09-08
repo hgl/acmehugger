@@ -1,0 +1,2 @@
+[*.conf,*.go]
+indent_style = tab
