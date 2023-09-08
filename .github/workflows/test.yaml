@@ -22,5 +22,5 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: stable
-      - run: go test -v
+      - run: go test -v ./...
       - run: go build -v -ldflags "-s -w" -trimpath ./nginx/nginxh
