@@ -3,26 +3,49 @@ name: Release
 on:
   push:
     tags:
-      - v*
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+      - v*.*.*
 
 jobs:
-  docker:
-    name: Release Docker image
+  gh-release:
+    name: GitHub Release
     runs-on: ubuntu-latest
     steps:
-      - uses: docker/login-action@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+      - run: |
+          make \
+            -j $(($(nproc)+1)) \
+            --no-builtin-rules \
+            --no-builtin-variables \
+            --warn-undefined-variables
+      - name: Create Release Draft
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bin/*
+          draft: true
+  docker:
+    name: Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in Docker Hub
+        uses: docker/login-action@v2
         with:
           username: hgl0
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Log in GitHub Packages
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: hgl
+          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/metadata-action@v4
         id: meta
         with:
           images: |
             hgl0/nginxh
+            ghcr.io/${{ github.actor }}/nginxh
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
