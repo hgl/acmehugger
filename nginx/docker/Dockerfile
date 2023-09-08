@@ -1,16 +1,25 @@
 # syntax=docker/dockerfile:1
 FROM golang:1.21-bookworm as build
 
-WORKDIR /go/src/app
-COPY . .
+WORKDIR /go/src/acmehugger
 
-RUN go build \
-	-o /go/bin/nginxh \
-	-ldflags " \
-		-X 'github.com/hgl/acmehugger/acme.CertsDir=/var/lib/acmehugger/acme/live' \
-		-X 'github.com/hgl/acmehugger/acme.ChallengeDir=/var/lib/acmehugger/acme-challenge' \
-	" \
-	./nginx/nginxh
+RUN --mount=target=. \
+	--mount=type=cache,target=/root/.cache/go-build \
+	--mount=type=cache,target=/go/pkg/mod \
+	<<EOF bash --posix
+		set -euo pipefail
+		ver=$(git describe --tags)
+		ver=\${ver#v}
+		go install \
+			-trimpath \
+			-ldflags "
+				-s -w
+				-X 'github.com/hgl/acmehugger/acme.CertsDir=/var/lib/acmehugger/acme/live'
+				-X 'github.com/hgl/acmehugger/acme.ChallengeDir=/var/lib/acmehugger/acme-challenge'
+				-X 'github.com/hgl/acmehugger.Version=\$ver'
+			" \
+			./nginx/nginxh
+EOF
 
 FROM debian:bookworm-slim
 

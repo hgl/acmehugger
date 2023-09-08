@@ -2,12 +2,15 @@ package nginx
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"runtime"
 	"syscall"
 
+	"github.com/hgl/acmehugger"
 	"github.com/hgl/acmehugger/acme"
 )
 
@@ -57,6 +60,14 @@ func Run() error {
 	conf, bin, args, err := parseArgs(os.Getenv("NGINXBIN"), os.Args[1:])
 	if err != nil {
 		return err
+	}
+	if len(args) == 1 && args[0] == "-h" {
+		fmt.Printf(`nginxh version: %s %s/%s
+Usage: nginxh [nginx option] ...
+
+Run 'nginx -h' for more information on nginx options.
+`, acmehugger.Version, runtime.GOOS, runtime.GOARCH)
+		return nil
 	}
 	slog.Debug("nginx args parsed", "conf", conf, "bin", bin, "args", args)
 
