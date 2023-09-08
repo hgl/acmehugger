@@ -18,7 +18,7 @@ With ACME Hugger, you just add some preprocessed acme directives written in the 
 Given this Nginx configuration, notice that the acme directives are only recognized by ACME Hugger:
 
 ```nginx
-// nginx.conf
+# nginx.conf
 http {
     acme_email acme@example.com;
 
