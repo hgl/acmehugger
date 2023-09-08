@@ -10,7 +10,7 @@ RUN go build \
 		-X 'github.com/hgl/acmehugger/acme.CertsDir=/var/lib/acmehugger/acme/live' \
 		-X 'github.com/hgl/acmehugger/acme.ChallengeDir=/var/lib/acmehugger/acme-challenge' \
 	" \
-	./nginx/cmd/nginxh
+	./nginx/nginxh
 
 FROM debian:bookworm-slim
 

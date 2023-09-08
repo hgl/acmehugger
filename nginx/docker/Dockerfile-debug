@@ -5,7 +5,7 @@ WORKDIR /go/src/app
 COPY . .
 
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
-RUN go build -gcflags="all=-N -l" -o /go/bin/nginxh ./nginx/cmd/nginxh
+RUN go build -gcflags="all=-N -l" -o /go/bin/nginxh ./nginx/nginxh
 
 FROM debian:bookworm-slim
 
