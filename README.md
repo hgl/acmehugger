@@ -237,6 +237,7 @@ Whenever a certificate is issued or renewed, ACME Hugger will call executables i
 
 - Docker readme
 - HAProxy support
+- Windows support
 
 ## Credit
 
