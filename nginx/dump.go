@@ -20,17 +20,15 @@ func (tr *Tree) Dump(outdir string) (name string, err error) {
 	return tr.conf.dump(outdir)
 }
 
-func (conf *Config) dump(outdir string) (string, error) {
-	var err error
+func (conf *Config) dump(outdir string) (name string, err error) {
 	defer conf.recover(&err)
-	name := filepath.Join(outdir, conf.path)
+	name = filepath.Join(outdir, conf.path)
 	dir := filepath.Dir(name)
 	err = os.MkdirAll(dir, 0755)
 	if err != nil {
 		return "", err
 	}
-	var f *os.File
-	f, err = os.Create(name)
+	f, err := os.Create(name)
 	if err != nil {
 		return "", err
 	}
@@ -60,8 +58,9 @@ func (conf *Config) recover(errp *error) {
 		if _, ok := e.(runtime.Error); ok {
 			panic(e)
 		}
-
-		*errp = e.(error)
+		if *errp == nil {
+			*errp = e.(error)
+		}
 	}
 }
 

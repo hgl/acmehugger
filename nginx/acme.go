@@ -77,6 +77,7 @@ type ACMEProcessor struct {
 	tr        *Tree
 	extractor *acmeExtractor
 	stopped   chan struct{}
+	changed   chan *ACMEChangeInfo
 }
 
 type ACMEChangeInfo struct {
@@ -88,17 +89,17 @@ type ACMEChangeInfo struct {
 }
 
 func (p *ACMEProcessor) Process() <-chan *ACMEChangeInfo {
-	ch := make(chan *ACMEChangeInfo)
+	p.changed = make(chan *ACMEChangeInfo)
 	for _, s := range p.extractor.httpsServerBlocks {
-		go p.processServerBlock(s, ch)
+		go p.processServerBlock(s)
 	}
 	for _, a := range p.extractor.acmeBlocks {
-		go p.processACMEBlock(a, ch)
+		go p.processACMEBlock(a)
 	}
-	return ch
+	return p.changed
 }
 
-func (p *ACMEProcessor) processServerBlock(s *serverBlock, ch chan<- *ACMEChangeInfo) {
+func (p *ACMEProcessor) processServerBlock(s *serverBlock) {
 	var issuer *acme.Issuer
 	var err error
 	for {
@@ -140,7 +141,7 @@ func (p *ACMEProcessor) processServerBlock(s *serverBlock, ch chan<- *ACMEChange
 					s.ensureSSLDirectives(info.CertPaths)
 				})
 				go func() {
-					ch <- &ACMEChangeInfo{
+					p.changed <- &ACMEChangeInfo{
 						Block:       s.dire,
 						TreeChanged: true,
 						Server:      hacct.Server,
@@ -151,7 +152,7 @@ func (p *ACMEProcessor) processServerBlock(s *serverBlock, ch chan<- *ACMEChange
 			}
 		} else if info.Changed {
 			go func() {
-				ch <- &ACMEChangeInfo{
+				p.changed <- &ACMEChangeInfo{
 					Block:       s.dire,
 					TreeChanged: false,
 					Server:      hacct.Server,
@@ -171,7 +172,7 @@ func (p *ACMEProcessor) processServerBlock(s *serverBlock, ch chan<- *ACMEChange
 	}
 }
 
-func (p *ACMEProcessor) processACMEBlock(a *acmeBlock, ch chan<- *ACMEChangeInfo) {
+func (p *ACMEProcessor) processACMEBlock(a *acmeBlock) {
 	var issuer *acme.Issuer
 	var err error
 	for {
@@ -206,7 +207,7 @@ func (p *ACMEProcessor) processACMEBlock(a *acmeBlock, ch chan<- *ACMEChangeInfo
 		if info.Changed {
 			hacct := issuer.HandlerAccount()
 			go func() {
-				ch <- &ACMEChangeInfo{
+				p.changed <- &ACMEChangeInfo{
 					Block:       a.dire,
 					TreeChanged: false,
 					Server:      hacct.Server,
@@ -227,6 +228,7 @@ func (p *ACMEProcessor) processACMEBlock(a *acmeBlock, ch chan<- *ACMEChangeInfo
 }
 
 func (p *ACMEProcessor) Stop() {
+	close(p.changed)
 	close(p.stopped)
 }
 

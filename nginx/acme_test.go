@@ -75,12 +75,12 @@ func TestACME(t *testing.T) {
 		changed := ap.Process()
 		i := 0
 		for range changed {
-			fakeClock.Tick(25 * time.Hour)
 			i++
 			if i >= 3 {
-				break
+				ap.Stop()
 			}
 			compareTree(t, tr, name+" after Process", "out")
+			fakeClock.Tick(25 * time.Hour)
 		}
 	}
 }
