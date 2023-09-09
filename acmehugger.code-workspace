@@ -23,6 +23,24 @@
 				"program": "${workspaceFolder}/acme"
 			},
 			{
+				"name": "Run",
+				"type": "go",
+				"request": "launch",
+				"mode": "auto",
+				"program": "${workspaceFolder}/nginx/nginxh",
+				"buildFlags": "-ldflags '-X github.com/hgl/acmehugger.StateDir=${workspaceFolder}/build/run -X github.com/hgl/acmehugger/acme.CertsDir=${workspaceFolder}/build/run/acme/live -X github.com/hgl/acmehugger/acme.HooksDir=${workspaceFolder}/nginx/testdata/run/hook.d -X github.com/hgl/acmehugger/nginx.ConfDir=${workspaceFolder}/nginx/testdata/run/conf'",
+				"args": [
+					"-p",
+					"${workspaceFolder}/nginx/testdata/run/conf",
+					"-c",
+					"${workspaceFolder}/nginx/testdata/run/conf/nginx.conf",
+					"-e",
+					"${workspaceFolder}/build/run/nginx/conf/error.log",
+					"-g",
+					"daemon off; pid ${workspaceFolder}/build/run/nginx/nginx.pid;"
+				]
+			},
+			{
 				"name": "Remote debug",
 				"type": "go",
 				"request": "attach",
@@ -32,27 +50,8 @@
 				"substitutePath": [
 					{
 						"from": "${workspaceFolder}",
-						"to": "/go/src/app"
+						"to": "/go/src/acmehugger"
 					}
-				]
-			},
-			{
-				"name": "Run",
-				"type": "go",
-				"request": "launch",
-				"mode": "auto",
-				"program": "${workspaceFolder}/nginx/cmd/nginxh",
-				"buildFlags": "-ldflags '-X github.com/hgl/acmehugger/meta.StateDir=${workspaceFolder}/build/state -X github.com/hgl/acmehugger/meta.NginxConfDir=${workspaceFolder}/build/conf'",
-				"args": [
-					"nginx",
-					"-p",
-					"${workspaceFolder}/build/conf",
-					"-c",
-					"${workspaceFolder}/nginx.conf",
-					"-e",
-					"${workspaceFolder}/build/conf/error.log",
-					"-g",
-					"daemon off;"
 				]
 			},
 		]

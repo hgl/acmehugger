@@ -1,0 +1,77 @@
+#!/bin/sh
+set -euo pipefail
+
+TOPDIR=$(dirname "$(realpath "$0" || true)")
+
+cmd_run_nginx() {
+	cd "$TOPDIR"
+	mkdir -p \
+		build/run/acme/accounts \
+		build/run/acme/challenge \
+		build/run/acme/live \
+		build/run/nginx/conf
+
+	go run \
+		-ldflags "
+			-X 'github.com/hgl/acmehugger.StateDir=$TOPDIR/build/run'
+			-X 'github.com/hgl/acmehugger/acme.CertsDir=$TOPDIR/build/run/acme/live'
+			-X 'github.com/hgl/acmehugger/acme.HooksDir=$TOPDIR/nginx/testdata/run/hook.d'
+			-X 'github.com/hgl/acmehugger/nginx.ConfDir=$TOPDIR/nginx/testdata/run/conf'
+		" \
+		./nginx/nginxh \
+		-p "$TOPDIR/nginx/testdata/run/conf" \
+		-c "$TOPDIR/nginx/testdata/run/conf/nginx.conf" \
+		-e "$TOPDIR/build/run/nginx/conf/error.log" \
+		-g "daemon off; pid $TOPDIR/build/run/nginx/nginx.pid;"
+}
+
+cmd_build_nginx() {
+	docker build --load \
+		-t hgl0/nginxh \
+		-f nginx/docker/Dockerfile \
+		"$TOPDIR"
+}
+
+cmd_test() {
+	cd "$TOPDIR"
+	go test -race ./acme ./nginx
+}
+
+cmd_test_cover() {
+	cd "$TOPDIR"
+	mkdir build
+	go test -coverprofile=build/c.out ./acme ./nginx
+	trap 'rm build/c.out' EXIT
+	go tool cover -html=build/c.out
+}
+
+cmd() {
+	if [ $# = 0 ]; then
+		cmd_help
+		return 1
+	fi
+	i=$#
+	while [ $i -gt 0 ]; do
+		j=1
+		cmd=cmd
+		for arg; do
+			if [ "$j" -gt "$i" ]; then
+				break
+			fi
+			cmd=${cmd}_$arg
+			j=$((j + 1))
+		done
+		# shellcheck disable=SC2312
+		if [ "$(command -v "$cmd")" = "$cmd" ]; then
+			break
+		fi
+		i=$((i - 1))
+	done
+	if [ $i = 0 ]; then
+		cmd_help "$1"
+		return 1
+	fi
+	shift $i
+	$cmd "$@"
+}
+cmd "$@"
