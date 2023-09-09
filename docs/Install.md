@@ -2,7 +2,7 @@
 
 ## Binaries
 
-Download the binary from the [releases page](https://github.com/hgl/acmehugger/releases).
+Download the binary corresponding your machine from the [releases page](https://github.com/hgl/acmehugger/releases).
 
 The binary assumes that a few directories and files exits. You need to create them before running the binary:
 
@@ -20,7 +20,7 @@ The binary assumes that a few directories and files exits. You need to create th
 $ go install github.com/hgl/acmehugger/nginx/nginxh@latest
 ```
 
-ACME Hugger assumes that a few directories exits. You can define their paths with the `-ldflag` flag:
+ACME Hugger assumes that a few directories and files exits. You can define their paths with the `-ldflags` flag:
 
 ```
 $ go install -ldflags "
@@ -33,14 +33,14 @@ A list of variables (and their default value) under `github.com/hgl/` available 
 
 - `acmehugger.StateDir` (`/var/lib/acmehugger`)
 - `acmehugger/acme.AccountsDir` (`${acmehugger.StateDir}/acme/accounts`)
-- `acmehugger/acme.ChallengeDir` (`${acmehugger.StateDir}/acme/accounts`)
+- `acmehugger/acme.ChallengeDir` (`${acmehugger.StateDir}/acme/challenge`)
 - `acmehugger/acme.CertsDir` (`/etc/ssl/acme`)
 - `acmehugger/acme.HooksDir` (`/usr/share/acmehugger/hook.d`)
 - `acmehugger/nginx.ConfDir` (`/etc/nginx`)
 - `acmehugger/nginx.Conf` (`${acmehugger/nginx.ConfDir}/nginx.conf`)
 - `acmehugger/nginx.ConfOutDir` (`${acmehugger.StateDir}/nginx/conf`)
 
-You need to create them before running the binary. See [binaries install](#binaries) for the meaning of each directory and file.
+You need to create them before running the binary. See [binaries install](#binaries) for what each directory and file is for.
 
 ## Docker
 

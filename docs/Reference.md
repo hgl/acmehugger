@@ -1,16 +1,16 @@
 # ACME Hugger Reference
 
-Currently, if HTTP01 challenge is used, all HTTP `server`s are added the `location /.well-known/acme-challenge/ { ... }` directive, to not complicate the logic. This might get optimized in the future.
+Currently, if HTTP01 challenge is used, all HTTP `server`s are added the `location /.well-known/acme-challenge/ { ... }` directive, to keep the logic simple. This might get optimized in the future.
 
-After an ACME certificate is obtained, corresponding `ssl_certificate`, `ssl_certificate_key` and `ssl_trusted_certificate` directive are added to `server { ... }`. No other directives are added.
+After an ACME certificate is obtained, corresponding `ssl_certificate`, `ssl_certificate_key` and `ssl_trusted_certificate` directive are added to `server { ... }`.
 
 ACME Hugger is designed to be idempotent, meaning you can restart it during the process, and it will continue issuing/renewing certificates or wait for the next renew time.
 
 ## CLI
 
-`nginxh` passes all arguments to `nginx`, changing only the configuration file path.
+`nginxh` passes all arguments to `nginx`, changing only the configuration file path. If `-h` is passes, it shows its own help instead of `nginx`'s.
 
-By default, the nginx binary is search in `$PATH`, but can be specified explicitly with the environment variable `NGINXBIN`.
+By default, ACME hugger runs `nginx` to start Nginx', that name can be changed with the environment variable `NGINXBIN`. You can specify a path to avoid it searching in `$PATH`.
 
 Setting the environment variable `ACMEHUGGER_DEBUG` to `1` enables more verbose logging.
 
@@ -27,7 +27,7 @@ http {
 }
 ```
 
-`acme_server b.example.com` will be used for `server { ... }`.
+In this example `acme_server b.example.com` will be used for the server.
 
 ## Directives
 
@@ -35,7 +35,7 @@ http {
 Default: server_name "";<br>
 Context: server
 
-Domains used in the ACME certificate. Ignored if the domains are specified with `~` ( i.e., regular expression), in which case use `acme_domain`, which also supports wildcard domains.
+Domains to add in the ACME certificate. Ignored if the domains are specified with `~` ( i.e., regular expression), in which case `acme_domain` should be used.
 
 ### acme_email email
 Default: acme_email ""<br>
@@ -89,7 +89,7 @@ This directive is removed after read.
 Default: -<br>
 Context: main, http, server, acme
 
-DNS provider to use. For a list of valid names, [see lego's document](https://go-acme.github.io/lego/dns/). Use each DNS provider's "code" value.
+DNS provider to use. Setting this also sets `acme_challenge` to `dns`. For a list of valid names, [see lego's document](https://go-acme.github.io/lego/dns/). Use each DNS provider's "code" value.
 
 For example, for Amazon Route 53:
 
@@ -123,7 +123,7 @@ Directive after it is omitted from the configuration until the certificate exist
 Default: -<br>
 Context: server, acme
 
-Domains used in the ACME certificate. It has higher priority than `server_name`, and supports wildcard.
+Domains to add in the ACME certificate. It has higher priority than `server_name`, and also supports wildcard.
 
 This directive is removed after read.
 
@@ -137,7 +137,7 @@ This directive is removed after read.
 
 ## Hooks
 
-Whenever a certificate is issued or renewed, ACME Hugger will call executables in the hooks directory (`/usr/share/acmehugger/hook.d` by default) with the following environment variables set:
+Whenever a certificate is issued or renewed, ACME Hugger will call each executable in the hooks directory (`/usr/share/acmehugger/hook.d` by default) in turn (sorted by file name) with the following environment variables set:
 
 | Names |
 | --- |
