@@ -17,6 +17,7 @@
               go-tools
               nil
               nodePackages.dockerfile-language-server-nodejs
+              nginx
             ];
           };
       });

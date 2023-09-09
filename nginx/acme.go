@@ -482,7 +482,9 @@ func (p *acmeExtractor) VisitDirective(dire Directive) error {
 		if err != nil {
 			return err
 		}
-		p.issueOptsStack.MustPeek().DNS.Name = name
+		opts := p.issueOptsStack.MustPeek()
+		opts.Challenge = acme.ChallengeDNS
+		opts.DNS.Name = name
 		d.Delete()
 		return nil
 	case "acme_dns_option":

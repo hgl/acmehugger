@@ -52,7 +52,7 @@ func parseArgs(bin string, args []string) (conf string, nbin string, nargs []str
 	return conf, nbin, nargs, nil
 }
 
-func Run() error {
+func Start() error {
 	if os.Getenv("ACMEHUGGER_DEBUG") != "" {
 		h := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug})
 		slog.SetDefault(slog.New(h))

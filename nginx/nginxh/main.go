@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	err := nginx.Run()
+	err := nginx.Start()
 	if err != nil {
 		slog.Error(err.Error())
 	}
