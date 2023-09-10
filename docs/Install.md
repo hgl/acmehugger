@@ -44,19 +44,8 @@ You need to create them before running the binary. See [binaries install](#binar
 
 ## Docker
 
-### Pull
 ```
-$ docker pull hgl0/nginxh
-```
-or
-```
-$ docker pull ghcr.io/hgl/nginxh
-```
-
-### Run
-
-```
-$ docker run hgl0/nginxh -h
+$ docker run -it -v /etc/nginx:/etc/nginx hgl0/nginxh
 ```
 
 The Docker image comes with a mainline Nginx with brotli module added. It uses most default locations as noted in [Binaries](#binaries) with a few changes:
